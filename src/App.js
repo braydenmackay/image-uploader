@@ -1,26 +1,34 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react"
+import request from "superagent"
+
+import "./App.css"
 
 function App() {
+  const [picture, setPicture] = React.useState("")
+  const [imgFromCloud, setImgFromCloud] = React.useState("")
+
+  const handleUpload = file => {
+    let upload = request
+      .post("https://api.cloudinary.com/v1_1/dnzlm8hmh/image/upload")
+      .field("upload_preset", "images")
+      .field("file", file)
+    upload.end((err, response) => {
+      if (err) {
+        console.log("cloudinary err", err)
+      }
+      if (response) {
+        setImgFromCloud(response.body.secure_url)
+      }
+    })
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <input type="file" onChange={e => setPicture(e.target.files[0])} />
+      <button onClick={() => handleUpload(picture)}>Upload</button>
+      <img src={imgFromCloud} alt="picture" />
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
